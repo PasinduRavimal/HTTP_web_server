@@ -1,11 +1,17 @@
 #include "../include/common.h"
 #include "../include/log.h"
 
-int main() {
-    printf("Second run\n");
-    printf("Including Logs\n");
+static void cleanup(void) __attribute__((destructor));
 
+int main() {
     printf("Initializing Logs\n");
     initializeLog();
+
+    serverLog("%s\n", "[DEBUG] Logs initialized.");
     
+}
+
+void cleanup() {
+    printf("Releasing Resources");
+    releaseLogResources();
 }
