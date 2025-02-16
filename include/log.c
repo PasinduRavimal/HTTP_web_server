@@ -7,7 +7,14 @@ char *getCurrentLogFile() {
     int length = strlen(RWEBSERVER_LOG_DIR);
     struct stat fileStat;
 
+    if (logFile != NULL)
+        fclose(logFile);
+
     char* filename = calloc(length + 7, sizeof (char));
+
+    if (filename == NULL)
+        errExit("[WARNING] Could not allocate memory for log file name.");
+
     strncpy(filename, RWEBSERVER_LOG_DIR, length);
     strcat(filename, "/log");
 
@@ -71,6 +78,33 @@ void serverLog(const char* format, ...) {
     va_start(argList, format);
     vfprintf(logFile, formatLocal, argList);
     va_end(argList);
+}
+
+void serverLogError(const char* format, ...) {
+    time_t t = time(NULL);
+    char* time = ctime(&t);
+    char timeLocal[30] = {'\0'};
+    char c = *time;
+    int i = 0;
+    char formatLocal[100];
+
+    while(c != '\n') {
+        timeLocal[i++] = c;
+        c = time[i];
+    }
+
+    snprintf(formatLocal, 100, "%s %s", timeLocal, format);
+
+    va_list argList, toErrArgList;
+
+    va_start(argList, format);
+    vfprintf(logFile, formatLocal, argList);
+    va_end(argList);
+    
+    va_start(toErrArgList, format);
+    char *message = va_arg(toErrArgList, char*);
+    va_end(toErrArgList);
+    errExit(message);
 }
 
 void releaseLogResources() {

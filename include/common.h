@@ -1,6 +1,7 @@
 #ifndef __RWEBSERVER_COMMON_H
 #define __RWEBSERVER_COMMON_H
 
+#include "core.h"
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>

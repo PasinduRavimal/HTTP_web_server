@@ -1,4 +1,5 @@
 #include "util.h"
+#include <unistd.h>
  
 char *intToString(int number) {
     static char string[10] = {'\0'};

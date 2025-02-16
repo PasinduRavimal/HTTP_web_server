@@ -19,11 +19,12 @@
 #define LOG_ERROR "ERROR"
 
 #ifndef RWEBSERVER_LOG_DIR
-#define RWEBSERVER_LOG_DIR "./config"
+#define RWEBSERVER_LOG_DIR "./log"
 #endif
 
 void initializeLog();
 void serverLog(const char* format, ...);
+void serverLogError(const char *format, ...);
 void releaseLogResources();
 
 #endif
