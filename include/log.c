@@ -78,6 +78,8 @@ void serverLog(const char* format, ...) {
     va_start(argList, format);
     vfprintf(logFile, formatLocal, argList);
     va_end(argList);
+
+    fflush(logFile);
 }
 
 void serverLogErrorAndExit(const char* format, ...) {

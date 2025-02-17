@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdbool.h>
-#include "error_functions.h"
 #include "log.h"
 
 #endif

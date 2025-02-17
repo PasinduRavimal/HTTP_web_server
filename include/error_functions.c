@@ -1,11 +1,6 @@
-#include <stdarg.h>
 #include "error_functions.h"
-#include "ename.c.inc"
-#include "common.h"
 
-#ifdef __GNUC__
-__attribute__ ((__noreturn__))
-#endif
+NORETURN
 static void terminate (bool useExit3) {
     char *s;
 

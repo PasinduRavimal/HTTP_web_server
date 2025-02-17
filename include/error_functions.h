@@ -1,5 +1,10 @@
+#include <stdarg.h>
+#include "common.h"
+
 #ifndef __RWEBSERVER_ERROR_FUNCTIONS_H
 #define __RWEBSERVER_ERROR_FUNCTIONS_H
+
+#include "ename.c.inc"
 
 void errMsg(const char *format, ...);
 

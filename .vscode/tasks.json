@@ -9,7 +9,13 @@
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "${fileDirname}/../include/error_functions.c",
+                "${fileDirname}/../include/log.c",
+                "${fileDirname}/../include/util.c",
+                "${fileDirname}/../include/core.c",
+                "${fileDirname}/../include/http.c",
+                "${fileDirname}/../include/inet_sockets.c"
             ],
             "options": {
                 "cwd": "${fileDirname}"

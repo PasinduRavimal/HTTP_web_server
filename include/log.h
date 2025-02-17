@@ -13,13 +13,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include "util.h"
+#include <stdbool.h>
 
 #define LOG_INFO "INFO"
 #define LOG_WARNING "WARNING"
 #define LOG_ERROR "ERROR"
 
 #ifndef RWEBSERVER_LOG_DIR
-#define RWEBSERVER_LOG_DIR "./log"
+#define RWEBSERVER_LOG_DIR "/home/kali/networking/web_server/log"
 #endif
 
 void initializeLog();

@@ -2,6 +2,10 @@
 #include "../include/log.h"
 #include "../include/server.h"
 #include "../include/inet_sockets.h"
+#include "../include/http.h"
+#include "../include/util.h"
+#include <sys/wait.h>
+#include <signal.h>
 
 #define SERVICE "8080"
 #define BUF_SIZE 4096
@@ -11,8 +15,7 @@ static void cleanup(void) __attribute__((destructor));
 static void grimReaper(int sig) {
     int savedErrno = errno;
 
-    while (waitpid(-1, NULL, WNOHANG) > 0)
-        continue;
+    while (waitpid(-1, NULL, WNOHANG) > 0);
     
     errno = savedErrno;
 }
@@ -36,13 +39,12 @@ int main() {
     printf("Initializing Logs\n");
     initializeLog();
 
-    serverLog("%s\n", "[DEBUG] Logs initialized.\n");
+    serverLog("%s\n", "[DEBUG] Logs initialized.");
     
     int lfd, cfd;
     struct sigaction sa;
-
-    if (becomeDeamon(0) == -1)
-        serverLogErrorAndExit("[ERROR] becomeDaemon\n");
+    struct sockaddr_storage remoteaddr;
+    socklen_t addrlen;
 
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
@@ -51,29 +53,29 @@ int main() {
         serverLogErrorAndExit("[ERROR] Error from sigaction(): %s\n", strerror(errno));
 
     lfd = inetListen(SERVICE, 10, NULL);
-    if (cfd == -1) 
+    if (lfd == -1) 
         serverLogErrorAndExit("[ERROR] Could not create server socket (%s)\n", strerror(errno));
 
     while (true) {
-        cfd = accept(lfd, NULL, NULL);
+        addrlen = sizeof remoteaddr;
+        cfd = accept(lfd, (struct sockaddr *)&remoteaddr, &addrlen);
         if (cfd == -1)
             serverLogErrorAndExit("[ERROR] Failure in accept(): %s", strerror(errno));
 
-        switch (fork())
-        {
-        case -1:
-            serverLogError("Can't create child");
-            close(cfd);
-            break;
+        switch (fork()) {
+            case -1:
+                serverLogError("Can't create child");
+                close(cfd);
+                break;
 
-        case 0:
-            close(lfd);
-            handleRequest(cfd);
-            _exit(EXIT_SUCCESS);
+            case 0:
+                close(lfd);
+                handleConnection(cfd, (struct sockaddr *)&remoteaddr);
+                _exit(EXIT_SUCCESS);
         
-        default:
-            close(cfd);
-            break;
+            default:
+                close(cfd);
+                break;
         }
     }
 }

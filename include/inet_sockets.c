@@ -54,12 +54,12 @@ static int inetPassiveSocket(const char *service, int type, socklen_t *addrlen, 
 
     s = getaddrinfo(NULL, service, &hints, &result);
     if (s != 0) {
-        serverLog("[ERROR] getaddrinfo failed: %s\n", gai_strerror(rv));
+        serverLog("[ERROR] getaddrinfo failed: %s\n", gai_strerror(s));
         return -1;
     }
 
     optval = 1;
-    for (rp = result; rp != NULLl rp = rp->ai_next) {
+    for (rp = result; rp != NULL; rp = rp->ai_next) {
         sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (sfd == -1)
             continue;
@@ -80,6 +80,7 @@ static int inetPassiveSocket(const char *service, int type, socklen_t *addrlen, 
 
     if (rp != NULL && doListen) {
         if (listen(sfd, backlog) == -1) {
+            serverLog("[DEBUG] Listening on %s", result->ai_addr);
             freeaddrinfo(result);
             return -1;
         }
@@ -101,7 +102,7 @@ int inetBind(const char *service, int type, socklen_t *addrlen) {
     return inetPassiveSocket(service, type, addrlen, false, 0);
 }
 
-char *inetAddressStr(const struct sockaddre *addr, socklen_t addrlen, char *addrStr, int addrStrLen) {
+char *inetAddressStr(const struct sockaddr *addr, socklen_t addrlen, char *addrStr, int addrStrLen) {
     char host[NI_MAXHOST], service[NI_MAXSERV];
 
     if (getnameinfo(addr, addrlen, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV == 0))
