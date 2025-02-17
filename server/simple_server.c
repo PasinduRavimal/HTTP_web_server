@@ -1,53 +1,84 @@
 #include "../include/common.h"
 #include "../include/log.h"
 #include "../include/server.h"
+#include "../include/inet_sockets.h"
+
+#define SERVICE "8080"
+#define BUF_SIZE 4096
 
 static void cleanup(void) __attribute__((destructor));
 
-void sigchld_handler(int s) {
-    int saved_errno = errno;
+static void grimReaper(int sig) {
+    int savedErrno = errno;
 
-    while (waitpid(-1, NULL, WNOHANG) > 0);
-
-    errno = saved_errno;
+    while (waitpid(-1, NULL, WNOHANG) > 0)
+        continue;
+    
+    errno = savedErrno;
 }
 
-void *get_in_addr(struct sockaddr *sa) {
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
+static void handleRequest(int cfd) {
+    char buf[BUF_SIZE];
+    ssize_t numRead;
+
+    while ((numRead = read(cfd, buf, BUF_SIZE)) > 0) {
+        if (write(cfd, buf, numRead) != numRead) {
+            serverLogErrorAndExit("write() failed: %s", strerror(errno));
+        }
     }
 
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+    if (numRead == -1) {
+        serverLogErrorAndExit("Error from read(): %s", strerror(errno));
+    }
 }
 
 int main() {
     printf("Initializing Logs\n");
     initializeLog();
 
-    serverLog("%s\n", "[DEBUG] Logs initialized.");
+    serverLog("%s\n", "[DEBUG] Logs initialized.\n");
     
-    int sockfd, new_fd;
-    struct addrinfo hints, *servinfo, *p;
-    struct sockaddr_storage their_addr;
-    socklen_t sin_size;
+    int lfd, cfd;
     struct sigaction sa;
-    int yes = 1;
-    char s[INET6_ADDRSTRLEN];
-    int rv;
 
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
+    if (becomeDeamon(0) == -1)
+        serverLogErrorAndExit("[ERROR] becomeDaemon\n");
 
-    serverLogError("[ERROR] %s\n", "This is another test error.");
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    sa.sa_handler = grimReaper;
+    if (sigaction(SIGCHLD, &sa, NULL) == -1) 
+        serverLogErrorAndExit("[ERROR] Error from sigaction(): %s\n", strerror(errno));
 
-    if ((rv = getaddrinfo(NULL, RWEBSERVER_PORT, &hints, &servinfo)) != 0) {
-        return 1;
+    lfd = inetListen(SERVICE, 10, NULL);
+    if (cfd == -1) 
+        serverLogErrorAndExit("[ERROR] Could not create server socket (%s)\n", strerror(errno));
+
+    while (true) {
+        cfd = accept(lfd, NULL, NULL);
+        if (cfd == -1)
+            serverLogErrorAndExit("[ERROR] Failure in accept(): %s", strerror(errno));
+
+        switch (fork())
+        {
+        case -1:
+            serverLogError("Can't create child");
+            close(cfd);
+            break;
+
+        case 0:
+            close(lfd);
+            handleRequest(cfd);
+            _exit(EXIT_SUCCESS);
+        
+        default:
+            close(cfd);
+            break;
+        }
     }
 }
 
 void cleanup() {
-    printf("Releasing Resources");
+    printf("Releasing Resources\n");
     releaseLogResources();
 }

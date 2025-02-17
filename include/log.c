@@ -80,7 +80,7 @@ void serverLog(const char* format, ...) {
     va_end(argList);
 }
 
-void serverLogError(const char* format, ...) {
+void serverLogErrorAndExit(const char* format, ...) {
     time_t t = time(NULL);
     char* time = ctime(&t);
     char timeLocal[30] = {'\0'};
@@ -105,6 +105,38 @@ void serverLogError(const char* format, ...) {
     char *message = va_arg(toErrArgList, char*);
     va_end(toErrArgList);
     errExit(message);
+}
+
+static void _outputError (bool useErr, int err, bool flushStdout, const char *format, va_list ap) {
+    #define BUF_SIZE 500
+    char buf[BUF_SIZE], userMsg[BUF_SIZE], errText[BUF_SIZE];
+
+    vsnprintf(userMsg, BUF_SIZE, format, ap);
+
+    if (useErr)
+        snprintf(errText, BUF_SIZE, " [%s %s]", err > 0 && err <= MAX_ENAME ? ename[err] : "?UNKNOWN?", strerror(err));
+    else
+        snprintf(errText, BUF_SIZE, ":");
+
+    snprintf(buf, BUF_SIZE, "[ERROR] %s %s\n", errText, userMsg);
+
+    if (flushStdout)
+        fflush(logFile);
+    fputs(buf, logFile);
+    fflush(logFile);
+}
+
+void serverLogError(const char *format, ...) {
+    va_list argList;
+    int savedErrno;
+
+    savedErrno = errno;
+
+    va_start(argList, format);
+    _outputError(true, errno, true, format, argList);
+    va_end(argList);
+
+    errno = savedErrno;
 }
 
 void releaseLogResources() {

@@ -24,6 +24,7 @@
 
 void initializeLog();
 void serverLog(const char* format, ...);
+void serverLogErrorAndExit(const char *format, ...);
 void serverLogError(const char *format, ...);
 void releaseLogResources();
 

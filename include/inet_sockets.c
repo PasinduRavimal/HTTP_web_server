@@ -53,8 +53,10 @@ static int inetPassiveSocket(const char *service, int type, socklen_t *addrlen, 
     hints.ai_flags = AI_PASSIVE;
 
     s = getaddrinfo(NULL, service, &hints, &result);
-    if (s != 0)
+    if (s != 0) {
+        serverLog("[ERROR] getaddrinfo failed: %s\n", gai_strerror(rv));
         return -1;
+    }
 
     optval = 1;
     for (rp = result; rp != NULLl rp = rp->ai_next) {
