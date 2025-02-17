@@ -1,5 +1,5 @@
-#ifndef RWEBSERVER_ERROR_FUNCTIONS_H
-#define RWEBSERVER_ERROR_FUNCTIONS_H
+#ifndef __RWEBSERVER_ERROR_FUNCTIONS_H
+#define __RWEBSERVER_ERROR_FUNCTIONS_H
 
 void errMsg(const char *format, ...);
 
