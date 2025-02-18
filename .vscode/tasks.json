@@ -15,7 +15,8 @@
                 "${fileDirname}/../include/util.c",
                 "${fileDirname}/../include/core.c",
                 "${fileDirname}/../include/http.c",
-                "${fileDirname}/../include/inet_sockets.c"
+                "${fileDirname}/../include/inet_sockets.c",
+                "${fileDirname}/../include/ip.c",
             ],
             "options": {
                 "cwd": "${fileDirname}"

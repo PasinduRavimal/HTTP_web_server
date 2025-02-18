@@ -20,11 +20,12 @@ static char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen) {
 client_info *get_client_info(int sockfd, const struct sockaddr *sa) {
     socklen_t length;
     struct sockaddr_storage addr;
-    char ipstr[INET6_ADDRSTRLEN];
+    char *ipstr;
     int port;
 
     static client_info *ci;
     ci = calloc(1, sizeof (struct clientInfo));
+    ipstr = calloc(INET6_ADDRSTRLEN, sizeof(char));
 
     length = sizeof addr;
     if (getpeername(sockfd, (struct sockaddr *)&addr, &length) == -1) {
@@ -34,11 +35,11 @@ client_info *get_client_info(int sockfd, const struct sockaddr *sa) {
     if (addr.ss_family == AF_INET) {
         struct sockaddr_in *s = (struct sockaddr_in *)&addr;
         port = ntohs(s->sin_port);
-        inet_ntop(AF_INET, &s->sin_addr, ipstr, sizeof ipstr);
+        inet_ntop(AF_INET, &s->sin_addr, ipstr, INET6_ADDRSTRLEN);
     } else {
         struct sockaddr_in6 *s = (struct sockaddr_in6 *)&addr;
         port = ntohs(s->sin6_port);
-        inet_ntop(AF_INET6, &s->sin6_addr, ipstr, sizeof ipstr);
+        inet_ntop(AF_INET6, &s->sin6_addr, ipstr, INET6_ADDRSTRLEN);
     }
 
     ci->client_ip = ipstr;

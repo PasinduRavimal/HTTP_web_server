@@ -76,7 +76,6 @@ int main() {
 
             case 0:
                 close(lfd);
-                serverLog("[DEBUG] Child process reached!\n");
                 handleConnection(cfd, (struct sockaddr *)&remoteaddr);
                 _exit(EXIT_SUCCESS);
         

@@ -18,8 +18,6 @@ ssize_t readLine(int fd, void *buffer, size_t n) {
     char *buf;
     char ch;
 
-    serverLog("[DEBUG] readLine function reached.\n");
-
     if (n <= 0 || buffer == NULL) {
         errno = EINVAL;
         return -1;
@@ -53,7 +51,6 @@ ssize_t readLine(int fd, void *buffer, size_t n) {
     }
 
     *buf = '\0';
-    serverLog("[DEBUG] end of readline reached!\n");
     return totRead;
 }
 

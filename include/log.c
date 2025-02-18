@@ -74,12 +74,17 @@ void serverLog(const char* format, ...) {
     snprintf(formatLocal, 100, "%s %s", timeLocal, format);
 
     va_list argList;
+    va_list stdoutArgList;
 
     va_start(argList, format);
     vfprintf(logFile, formatLocal, argList);
     va_end(argList);
 
     fflush(logFile);
+
+    va_start(stdoutArgList, format);
+    vprintf(format, stdoutArgList);
+    va_end(stdoutArgList);
 }
 
 void serverLogErrorAndExit(const char* format, ...) {

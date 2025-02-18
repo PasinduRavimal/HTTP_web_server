@@ -5,13 +5,9 @@ void handleConnection(int sockfd, struct sockaddr *client_addr_ptr) {
     client_info *clinfo = get_client_info(sockfd, client_addr_ptr);
     int fd, length;
 
-    serverLog("[DEBUG] Handle Connection called\n");
-
     length = readLine(sockfd, request, RWEBSERVER_MAX_BUF);
 
-    serverLog("[DEBUG] Back again in http.c\n");
-
-    serverLog("[INFO] Got a request from %s:%d\"\"\n", clinfo->client_ip, clinfo->client_port);
+    serverLog("[INFO] Got a request from %s:%d\n", clinfo->client_ip, clinfo->client_port);
 
     ptr = strstr(request, " HTTP/");
     if (ptr == NULL)
