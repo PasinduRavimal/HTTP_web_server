@@ -44,7 +44,7 @@ void handleConnection(int sockfd, struct sockaddr *client_addr_ptr) {
                 writeString(sockfd, "<body><h1>URL not found</h1></body></html>\r\n");
             } else {
                 serverLog("[INFO] 200 OK\n");
-                writeString(sockfd, "HTTP/1.0 OK\r\n");
+                writeString(sockfd, "HTTP/1.0 200 OK\r\n");
                 writeString(sockfd, "Server: R Webserver\r\n\r\n");
                 if (ptr == request + 4) {
                     if ((length = get_file_size(fd)) == -1)
