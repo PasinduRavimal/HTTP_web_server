@@ -48,3 +48,8 @@ client_info *get_client_info(int sockfd, const struct sockaddr *sa) {
     return ci;
 }
 
+void freeClientInfo(client_info *ptr) {
+    free(ptr->client_ip);
+    free(ptr);
+}
+

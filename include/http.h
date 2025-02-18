@@ -12,6 +12,7 @@
 #define RWEBSERVER_MAX_BUF 4096
 #define RWEBSERVER_PORT_MAX 6
 #define RWEBSERVER_WEBROOT "./www"
+#define RWEBSERVER_MAX_MIME_LENGTH 50
 
 void handleConnection(int, struct sockaddr *);
 

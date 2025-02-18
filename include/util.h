@@ -25,5 +25,6 @@ ssize_t readn(int fd, void *buffer, size_t count);
 ssize_t writen(int fd, void *buffer, size_t count);
 ssize_t writeString(int fd, void *buffer);
 int get_file_size(int);
+void get_mime_type(const char *filename, char *mime_type, size_t size);
 
 #endif

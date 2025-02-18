@@ -15,5 +15,6 @@ typedef struct clientInfo{
 } client_info;
 
 client_info *get_client_info(int sockfd, const struct sockaddr *sa);
+void freeClientInfo(client_info *);
 
 #endif

@@ -20,21 +20,6 @@ static void grimReaper(int sig) {
     errno = savedErrno;
 }
 
-static void handleRequest(int cfd) {
-    char buf[BUF_SIZE];
-    ssize_t numRead;
-
-    while ((numRead = read(cfd, buf, BUF_SIZE)) > 0) {
-        if (write(cfd, buf, numRead) != numRead) {
-            serverLogErrorAndExit("write() failed: %s", strerror(errno));
-        }
-    }
-
-    if (numRead == -1) {
-        serverLogErrorAndExit("Error from read(): %s", strerror(errno));
-    }
-}
-
 int main() {
     printf("Initializing Logs\n");
     initializeLog();
@@ -42,7 +27,7 @@ int main() {
     serverLog("%s\n", "[DEBUG] Logs initialized.");
     
     int lfd, cfd;
-    struct sigaction sa;
+    struct sigaction sa, sint;
     struct sockaddr_storage remoteaddr;
     socklen_t addrlen;
     char s[INET6_ADDRSTRLEN];

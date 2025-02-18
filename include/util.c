@@ -1,5 +1,7 @@
 #include "util.h"
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "../include/log.h"
  
 char *intToString(int number) {
@@ -178,4 +180,25 @@ int get_file_size(int fd) {
         return -1;
     
     return (int)stat_struct.st_size;
+}
+
+void get_mime_type(const char *filename, char *mime_type, size_t size) {
+    char command[512];
+    snprintf(command, sizeof(command), "file --mime-type -b %s", filename);
+
+    FILE *fp = popen(command, "r");
+    if (fp == NULL) {
+        serverLog("[WARNING] Could not get the mime type (popen failed)\n");
+        snprintf(mime_type, size, "application/octet-stream");
+        return;
+    }
+
+    if (fgets(mime_type, size, fp) == NULL) {
+        serverLog("[WARNING] Could not get the mime type (fgets failed)\n");
+        snprintf(mime_type, size, "application/octet-stream");
+    } else {
+        mime_type[strcspn(mime_type, "\n")] = '\0';
+    }
+
+    pclose(fp);
 }
