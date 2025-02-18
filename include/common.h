@@ -10,5 +10,6 @@
 #include <errno.h>
 #include <stdbool.h>
 #include "log.h"
+#include "util.h"
 
 #endif

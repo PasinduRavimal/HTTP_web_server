@@ -70,7 +70,7 @@ int main() {
 
         switch (fork()) {
             case -1:
-                serverLogError("Can't create child\n");
+                serverLogError("[ERROR] Can't create child\n");
                 close(cfd);
                 break;
 
@@ -84,17 +84,6 @@ int main() {
                 close(cfd);
                 break;
         }
-
-        // if (!fork()) { // this is the child process
-		// 	close(lfd); // child doesn't need the listener
-		// 	if (send(cfd, "Hello, world!", 13, 0) == -1)
-		// 		perror("send");
-        //     serverLog("Child process reached.");
-        //     handleConnection(cfd, (struct sockaddr *)&remoteaddr);
-		// 	close(cfd);
-		// 	exit(0);
-		// }
-		// close(cfd);  // parent doesn't need this
     }
 }
 

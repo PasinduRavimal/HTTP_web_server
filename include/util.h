@@ -24,5 +24,6 @@ int becomeDaemon(int flags);
 ssize_t readn(int fd, void *buffer, size_t count);
 ssize_t writen(int fd, void *buffer, size_t count);
 ssize_t writeString(int fd, void *buffer);
+int get_file_size(int);
 
 #endif
