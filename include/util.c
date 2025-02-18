@@ -1,5 +1,6 @@
 #include "util.h"
 #include <unistd.h>
+#include "../include/log.h"
  
 char *intToString(int number) {
     static char string[10] = {'\0'};
@@ -16,6 +17,8 @@ ssize_t readLine(int fd, void *buffer, size_t n) {
     size_t totRead;
     char *buf;
     char ch;
+
+    serverLog("[DEBUG] readLine function reached.\n");
 
     if (n <= 0 || buffer == NULL) {
         errno = EINVAL;
@@ -50,6 +53,7 @@ ssize_t readLine(int fd, void *buffer, size_t n) {
     }
 
     *buf = '\0';
+    serverLog("[DEBUG] end of readline reached!\n");
     return totRead;
 }
 
@@ -110,4 +114,62 @@ int becomeDaemon(int flags) {
     }
 
     return 0;
+}
+
+ssize_t readn(int fd, void *buffer, size_t n) {
+    ssize_t numRead;
+    size_t totRead;
+    char *buf;
+
+    buf = buffer;
+    for (totRead = 0; totRead < n; ) {
+        numRead = read(fd, buf, n - totRead);
+
+        if (numRead == 0)
+            return totRead;
+        if (numRead == -1) {
+            if (errno == EINTR)
+                continue;
+            else
+                return -1;
+        }
+
+        totRead += numRead;
+        buf += numRead;
+    }
+
+    return totRead;
+}
+
+ssize_t writen(int fd, void *buffer, size_t n) {
+    ssize_t numWritten;
+    size_t totWritten;
+    const char *buf;
+
+    buf = buffer;
+    for (totWritten = 0; totWritten < n; ) {
+        numWritten = write(fd, buf, n - totWritten);
+
+        if (numWritten <= 0){
+            if (numWritten == -1 && errno == EINTR)
+                continue;
+            else
+                return -1;
+        }
+
+        totWritten += numWritten;
+        buf += numWritten;
+    }
+
+    return totWritten;
+}
+
+ssize_t writeString(int fd, void* buffer) {
+    const char *buf;
+    ssize_t bufLen;
+
+    buf = buffer;
+    bufLen = strlen(buf);
+
+    return writen(fd, buffer, bufLen);
 }

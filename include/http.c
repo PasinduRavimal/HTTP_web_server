@@ -39,11 +39,13 @@ void handleConnection(int sockfd, struct sockaddr *client_addr_ptr) {
     char remoteIP[INET6_ADDRSTRLEN], remotePort[RWEBSERVER_PORT_MAX];
     int fd, length;
 
-    printf("Handle Connection called");
+    serverLog("[DEBUG] Handle Connection called\n");
 
     length = readLine(sockfd, request, RWEBSERVER_MAX_BUF);
 
-    serverLog("Got request from %s:%d \"%s\"\n", get_ip_str(client_addr_ptr, remoteIP, INET6_ADDRSTRLEN), get_port_str(client_addr_ptr, remotePort, RWEBSERVER_PORT_MAX));
+    serverLog("[DEBUG] Back again in http.c\n");
+
+    // serverLog("[INFO] Got request from %s:%d \"%s\"\n", get_ip_str(client_addr_ptr, remoteIP, INET6_ADDRSTRLEN), get_port_str(client_addr_ptr, remotePort, RWEBSERVER_PORT_MAX));
 
     ptr = strstr(request, " HTTP/");
     if (ptr == NULL)
@@ -59,5 +61,48 @@ void handleConnection(int sockfd, struct sockaddr *client_addr_ptr) {
 
         if (ptr == NULL)
             serverLog("[INFO] Unknown request received.\n");
+        else {
+            if (ptr[strlen(ptr) - 1] == '/')
+                strcat(ptr, "index.html");
+            strncpy(resource, RWEBSERVER_WEBROOT, RWEBSERVER_MAX_BUF);
+            strncat(resource, ptr, RWEBSERVER_MAX_BUF - strlen(resource));
+
+            fd = open(resource, O_RDONLY, 0);
+            serverLog("[INFO] Openning \'%s\'\t", resource);
+
+            if (fd == -1) {
+                serverLog(" 404 Not Found\n");
+                writeString(sockfd, "HTTP/1.0 404 NOT FOUND\r\n");
+                writeString(sockfd, "Server: R Webserver\r\n\r\n");
+                writeString(sockfd, "<html><head><title>404 Not Found</title></head>");
+                writeString(sockfd, "<body><h1>URL not found</h1></body></html>\r\n");
+            } else {
+                serverLog(" 200 OK\n");
+                writeString(sockfd, "HTTP/1.0 OK\r\n");
+                writeString(sockfd, "Server: R Webserver\r\n\r\n");
+                if (ptr == request + 4) {
+                    if ((length = get_file_size(fd)) == -1)
+                        serverLogError("[ERROR] Getting resource file size\n");
+                    if ((ptr = (unsigned char *) malloc(length)) == NULL)
+                        serverLogError("[ERROR Allocatign memory for reading resource\n");
+                    read(fd, ptr, length);
+                    writen(sockfd, ptr, length);
+                    free(ptr);
+                    ptr = NULL;
+                }
+                close(fd);
+            }
+        }
     }
+
+    shutdown(sockfd, SHUT_RDWR);
+}
+
+int get_file_size(int fd) {
+    struct stat stat_struct;
+
+    if (fstat(fd, &stat_struct) == -1)
+        return -1;
+    
+    return (int)stat_struct.st_size;
 }

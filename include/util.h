@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 
 #define BD_NO_CHDIR 01
 #define BD_NO_CLOSE_FILES 02
@@ -20,5 +21,8 @@
 char *intToString(int number);
 ssize_t readLine(int, void*, size_t);
 int becomeDaemon(int flags);
+ssize_t readn(int fd, void *buffer, size_t count);
+ssize_t writen(int fd, void *buffer, size_t count);
+ssize_t writeString(int fd, void *buffer);
 
 #endif

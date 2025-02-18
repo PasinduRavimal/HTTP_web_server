@@ -45,6 +45,10 @@ int main() {
     struct sigaction sa;
     struct sockaddr_storage remoteaddr;
     socklen_t addrlen;
+    char s[INET6_ADDRSTRLEN];
+
+    // if (becomeDaemon(0) == -1)
+    //     serverLogErrorAndExit("becomeDaemon\n");
 
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
@@ -56,20 +60,23 @@ int main() {
     if (lfd == -1) 
         serverLogErrorAndExit("[ERROR] Could not create server socket (%s)\n", strerror(errno));
 
+    serverLog("[INFO] Waiting for connections...\n");
+    
     while (true) {
         addrlen = sizeof remoteaddr;
         cfd = accept(lfd, (struct sockaddr *)&remoteaddr, &addrlen);
         if (cfd == -1)
-            serverLogErrorAndExit("[ERROR] Failure in accept(): %s", strerror(errno));
+            serverLogErrorAndExit("[ERROR] Failure in accept(): %s\n", strerror(errno));
 
         switch (fork()) {
             case -1:
-                serverLogError("Can't create child");
+                serverLogError("Can't create child\n");
                 close(cfd);
                 break;
 
             case 0:
                 close(lfd);
+                serverLog("[DEBUG] Child process reached!\n");
                 handleConnection(cfd, (struct sockaddr *)&remoteaddr);
                 _exit(EXIT_SUCCESS);
         
@@ -77,6 +84,17 @@ int main() {
                 close(cfd);
                 break;
         }
+
+        // if (!fork()) { // this is the child process
+		// 	close(lfd); // child doesn't need the listener
+		// 	if (send(cfd, "Hello, world!", 13, 0) == -1)
+		// 		perror("send");
+        //     serverLog("Child process reached.");
+        //     handleConnection(cfd, (struct sockaddr *)&remoteaddr);
+		// 	close(cfd);
+		// 	exit(0);
+		// }
+		// close(cfd);  // parent doesn't need this
     }
 }
 
