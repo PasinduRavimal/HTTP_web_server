@@ -20,7 +20,7 @@
 #define LOG_ERROR "ERROR"
 
 #ifndef RWEBSERVER_LOG_DIR
-#define RWEBSERVER_LOG_DIR "/home/kali/networking/web_server/log"
+#define RWEBSERVER_LOG_DIR "./log"
 #endif
 
 void initializeLog();
